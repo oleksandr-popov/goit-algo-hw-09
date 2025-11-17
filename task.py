@@ -86,7 +86,5 @@ if __name__ == "__main__":
     # Приклад різниці у виводі для однієї суми
     sample_amount = amounts_to_test[-1]
     print(f"\nСклад Монет для Суми {sample_amount}:")
-    print(
-        f"  Результат Жадібного:                   {find_coins_greedy(sample_amount)}"
-    )
+    print(f"  Результат Жадібного:                   {find_coins_greedy(sample_amount)}")
     print(f"  Результат Динам.Программування:        {find_min_coins(sample_amount)}")
