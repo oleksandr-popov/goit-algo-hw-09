@@ -1,95 +1,92 @@
 import timeit
 
-# Define the available coin denominations
+# Визначаємо доступні номінали монет
 denominations = [50, 25, 10, 5, 2, 1]
 
 
 def find_coins_greedy(amount):
     """
-    Finds the coin count using a simple greedy approach.
-    It takes as many of the largest coin as possible, then moves to the next largest.
+    Знаходить кількість монет, використовуючи простий жадібний підхід.
+    Алгоритм бере якомога більше найбільших монет, а потім переходить до наступних за розміром.
     """
     coin_counts = {}
     remaining_amount = amount
-    
-    # Iterate through denominations from largest to smallest
+
+    # Ітеруємо через номінали від найбільшого до найменшого
     for coin in denominations:
         if remaining_amount >= coin:
-            # Calculate how many of the current coin can be used
+            # Обчислюємо, скільки поточних монет можна використати
             count = remaining_amount // coin
             coin_counts[coin] = count
-            
-            # Update the remaining amount
+
+            # Оновлюємо суму, що залишилася
             remaining_amount %= coin
-            
+
     return coin_counts
 
 
 def find_min_coins(amount):
     """
-    Finds the minimum number of coins for a given amount using Dynamic Programming.
-    It builds up the solution from 1 up to the target amount.
+    Знаходить мінімальну кількість монет для заданої суми, використовуючи Динамічне Програмування.
+    Рішення будується поступово, починаючи з 1 і до цільової суми.
     """
 
-    # min_coins[x] stores the minimum number of coins needed to make amount x
-    # We use amount + 1 size because we index from 0 up to 'amount'.
+    # min_coins[x] зберігає мінімальну кількість монет, необхідну для отримання суми x
+    # Ми використовуємо розмір 'amount + 1', оскільки індексуємо від 0 до 'amount'.
     min_coins = [0] + [float("inf")] * amount
-    
-    # coin_count[x] stores the actual dictionary of coins used to make amount x
+
+    # coin_count[x] зберігає фактичний словник монет, використаних для отримання суми x
     coin_count = [{} for _ in range(amount + 1)]
 
-    # Iterate through each coin denomination
+    # Ітеруємо через кожен номінал монети
     for coin in denominations:
-        # Iterate through all amounts from the coin's value up to the target amount
+        # Ітеруємо через усі суми від значення монети до цільової суми
         for x in range(coin, amount + 1):
-            
+
+            # Якщо використання поточної монети дає меншу загальну кількість монет, ніж поточний мінімум
             if min_coins[x - coin] + 1 < min_coins[x]:
-                # Update the minimum number of coins for amount x
+                # Оновлюємо мінімальну кількість монет для суми x
                 min_coins[x] = min_coins[x - coin] + 1
-                
-                # Update the actual coin composition for amount x
-                # Copy the coin composition for the remainder (x - coin)
+
+                # Оновлюємо фактичний склад монет для суми x
+                # Копіюємо склад монет для залишку (x - coin)
                 coin_count[x] = coin_count[x - coin].copy()
-                
-                # Increment the count of the current coin
+
+                # Збільшуємо лічильник поточної монети
                 coin_count[x][coin] = coin_count[x].get(coin, 0) + 1
     return coin_count[amount]
 
 
 if __name__ == "__main__":
-    # Amounts to test
+    # Суми для тестування
     amounts_to_test = [10, 55, 113, 207, 505, 1001]
     results = []
-    
-    # Number of times to run each function for accurate timing
+
+    # Кількість разів для запуску кожної функції для точного вимірювання часу
     NUM_RUNS = 1000
 
     for amount in amounts_to_test:
-        # Time the Greedy function
-        time_greedy = timeit.timeit(
-            lambda: find_coins_greedy(amount), 
-            number=NUM_RUNS
-        )
-        
-        # Time the Dynamic Programming function
-        time_dp = timeit.timeit(
-            lambda: find_min_coins(amount), 
-            number=NUM_RUNS
-        )
-        
+        # Вимірюємо час виконання жадібної функції
+        time_greedy = timeit.timeit(lambda: find_coins_greedy(amount), number=NUM_RUNS)
+
+        # Вимірюємо час виконання функції Динамічного Програмування
+        time_dp = timeit.timeit(lambda: find_min_coins(amount), number=NUM_RUNS)
+
         results.append([amount, time_greedy, time_dp])
 
-    # Print the results in a formatted table
-    print("\nPerformance Comparison (1000 runs):")
+    # Виводимо результати у відформатованій таблиці
+    print("\nПорівняння продуктивності (1000 запусків):")
     print("-" * 43)
-    print(" Amount | Greedy Time (s)| DP Time (s)")
+    print("  Сума  | Час Жадібний (с) | Час ДП (с)")
     print("-" * 43)
     for result in results:
-        print(f"{result[0]:>6} | {result[1]:>15.8f} | {result[2]:>10.8f}")
+        print(f"{result[0]:>6} | {result[1]:>15.8f}   |   {result[2]:>10.8f}")
     print("-" * 43)
 
-    # Example of the difference in output for a single amount
+    # Приклад різниці у виводі для однієї суми
     sample_amount = amounts_to_test[-1]
-    print(f"\nCoin Counts for Amount {sample_amount}:")
-    print(f"  Greedy Result: {find_coins_greedy(sample_amount)}")
-    print(f"  DP Result:     {find_min_coins(sample_amount)}")
+    print(f"\nСклад Монет для Суми {sample_amount}:")
+    print(
+        f"  Результат Жадібного:                   {find_coins_greedy(sample_amount)}"
+    )
+    print(f"  Результат Динам.Программування:        {find_min_coins(sample_amount)}")
